@@ -1,0 +1,13 @@
+{
+  "name": "afc-backend",
+  "version": "1.0.0",
+  "description": "Allfor Care Medical & Ambulance Services (AFC) — backend API and app",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/smoke.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

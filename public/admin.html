@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFC — Dispatcher Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal-950:#0F2E2A;
+    --teal-900:#16423C;
+    --teal-700:#2A5D54;
+    --sage:#93AC98;
+    --sand:#F6F1E7;
+    --sand-dim:#EFE7D6;
+    --ink:#1B2422;
+    --honey:#DFA23D;
+    --honey-dark:#B97F27;
+    --white:#FFFDF8;
+    --line: rgba(22,66,60,0.13);
+    --urgent:#C1443B;
+    --urgent-dark:#9E332B;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter', sans-serif;
+    background:var(--sand-dim);
+    color:var(--ink);
+    min-height:100vh;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+
+  /* ---------------- login ---------------- */
+  #view-login{
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .login-card{
+    width:100%; max-width:360px; background:var(--white); border:1px solid var(--line);
+    border-radius:16px; padding:32px 28px; box-shadow:0 20px 50px rgba(15,46,42,0.12);
+  }
+  .login-brand{display:flex; align-items:center; gap:8px; margin-bottom:22px;}
+  .login-brand h1{font-family:'Fraunces', serif; font-size:18px; color:var(--teal-950);}
+  .login-card p.lede{font-size:13px; color:#5A655F; margin-bottom:20px; line-height:1.5;}
+  .field label{
+    display:block; font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--teal-700); margin-bottom:6px;
+  }
+  .field input{
+    width:100%; border:1px solid var(--line); background:var(--white); border-radius:10px;
+    padding:12px 13px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink); outline:none;
+  }
+  .field input:focus{border-color:var(--honey-dark);}
+  .btn{
+    width:100%; background:var(--teal-900); color:var(--white); font-weight:700; font-size:13.5px;
+    padding:13px; border:none; border-radius:10px; cursor:pointer; margin-top:16px;
+  }
+  .btn:active{background:var(--teal-700);}
+  .btn:disabled{opacity:0.6; cursor:default;}
+  .error-note{
+    display:none; font-size:12.5px; color:var(--urgent); background:rgba(193,68,59,0.08);
+    border:1px solid rgba(193,68,59,0.3); border-radius:9px; padding:10px 12px; margin-top:14px;
+  }
+  .error-note.show{display:block;}
+
+  /* ---------------- dashboard shell ---------------- */
+  #view-dashboard{display:none; min-height:100vh; flex-direction:column;}
+  #view-dashboard.active{display:flex;}
+  .topbar{
+    background:var(--teal-950); color:var(--white); padding:16px 24px;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  }
+  .topbar-brand{display:flex; align-items:center; gap:9px;}
+  .topbar-brand h1{font-family:'Fraunces', serif; font-size:17px;}
+  .topbar-brand span{font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--sage); display:block; margin-top:2px;}
+  .topbar-actions{display:flex; align-items:center; gap:10px;}
+  .icon-btn{
+    background:rgba(255,253,248,0.1); border:1px solid rgba(255,253,248,0.18); color:var(--white);
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; padding:9px 14px; border-radius:9px; cursor:pointer;
+  }
+  .icon-btn:hover{background:rgba(255,253,248,0.18);}
+
+  .tabs{
+    display:flex; gap:6px; padding:14px 24px 0; background:var(--sand); border-bottom:1px solid var(--line);
+    overflow-x:auto;
+  }
+  .tab{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em;
+    padding:11px 16px; border-radius:10px 10px 0 0; cursor:pointer; color:#5A655F; white-space:nowrap;
+    border:1px solid transparent; border-bottom:none;
+  }
+  .tab.active{color:var(--teal-950); background:var(--white); border-color:var(--line);}
+  .tab .count{
+    display:inline-block; margin-left:6px; background:var(--honey); color:var(--teal-950);
+    border-radius:99px; padding:1px 7px; font-size:10px; font-weight:700;
+  }
+
+  main{flex:1; padding:22px 24px 60px; background:var(--sand);}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .panel-empty{
+    text-align:center; padding:60px 20px; color:#5A655F; font-size:13px;
+  }
+
+  .table-wrap{
+    background:var(--white); border:1px solid var(--line); border-radius:14px; overflow-x:auto;
+  }
+  table{width:100%; border-collapse:collapse; min-width:820px;}
+  thead th{
+    text-align:left; font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase;
+    letter-spacing:0.05em; color:var(--teal-700); padding:13px 14px; border-bottom:1px solid var(--line);
+    background:var(--sand-dim); position:sticky; top:0;
+  }
+  tbody td{
+    padding:13px 14px; font-size:12.5px; border-bottom:1px solid var(--line); vertical-align:top; color:var(--ink);
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:rgba(147,172,152,0.08);}
+  td.muted{color:#5A655F;}
+  td.notes{max-width:220px; white-space:normal; line-height:1.4;}
+
+  .badge{
+    display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase;
+    letter-spacing:0.04em; padding:4px 9px; border-radius:99px; font-weight:600; white-space:nowrap;
+  }
+  .badge-open{background:rgba(193,68,59,0.12); color:var(--urgent-dark);}
+  .badge-progress{background:rgba(223,162,61,0.16); color:var(--honey-dark);}
+  .badge-done{background:rgba(147,172,152,0.22); color:var(--teal-900);}
+  .badge-cancelled{background:rgba(90,101,95,0.12); color:#5A655F;}
+
+  select.status-select{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; padding:6px 8px; border-radius:8px;
+    border:1px solid var(--line); background:var(--white); color:var(--ink); cursor:pointer;
+  }
+  select.status-select:disabled{opacity:0.5; cursor:default;}
+
+  .toast{
+    position:fixed; bottom:20px; right:20px; background:var(--teal-950); color:var(--white);
+    padding:12px 18px; border-radius:10px; font-size:12.5px; box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    opacity:0; transform:translateY(8px); transition:opacity .18s, transform .18s; pointer-events:none; z-index:50;
+  }
+  .toast.show{opacity:1; transform:translateY(0);}
+  .toast.error{background:var(--urgent);}
+
+  .refresh-note{font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:#5A655F;}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="view-login">
+  <div class="login-card">
+    <div class="login-brand">
+      <svg viewBox="0 0 120 120" width="22" height="22">
+        <rect x="8" y="8" width="104" height="104" rx="28" fill="#1B4D8F"/>
+        <rect x="52" y="26" width="16" height="68" rx="8" fill="#F6F1E7"/>
+        <rect x="26" y="52" width="68" height="16" rx="8" fill="#F6F1E7"/>
+        <circle cx="90" cy="30" r="9" fill="#D6303C"/>
+        <circle cx="90" cy="30" r="9" fill="none" stroke="#1B4D8F" stroke-width="2.5"/>
+      </svg>
+      <h1>AFC Dispatcher Dashboard</h1>
+    </div>
+    <p class="lede">Enter the admin token to view and manage bookings, ambulance requests, and memberships.</p>
+    <div class="field">
+      <label>Admin token</label>
+      <input type="password" id="login-token" placeholder="Paste ADMIN_TOKEN" autocomplete="off">
+    </div>
+    <button class="btn" id="login-btn" onclick="doLogin()">Sign in</button>
+    <div class="error-note" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ============ DASHBOARD ============ -->
+<div id="view-dashboard">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <h1>AFC Dispatcher Dashboard<span>Bookings · Ambulance · Membership</span></h1>
+    </div>
+    <div class="topbar-actions">
+      <span class="refresh-note" id="last-refresh">—</span>
+      <button class="icon-btn" onclick="loadAll()">Refresh</button>
+      <button class="icon-btn" onclick="logout()">Log out</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-bookings" onclick="showPanel('bookings')">Bookings<span class="count" id="count-bookings">0</span></div>
+    <div class="tab" id="tab-sos" onclick="showPanel('sos')">Ambulance / SOS<span class="count" id="count-sos">0</span></div>
+    <div class="tab" id="tab-membership" onclick="showPanel('membership')">Membership<span class="count" id="count-membership">0</span></div>
+  </div>
+
+  <main>
+    <div class="panel active" id="panel-bookings">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Received</th><th>Service</th><th>Patient</th><th>Contact</th><th>When / Where</th><th>Payment</th><th>Notes</th><th>Status</th>
+          </tr></thead>
+          <tbody id="rows-bookings"></tbody>
+        </table>
+      </div>
+      <div class="panel-empty" id="empty-bookings" style="display:none;">No bookings yet.</div>
+    </div>
+
+    <div class="panel" id="panel-sos">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Received</th><th>Contact</th><th>Pickup / Drop-off</th><th>Staff needed</th><th>Mobility</th><th>Payment</th><th>Notes</th><th>Status</th>
+          </tr></thead>
+          <tbody id="rows-sos"></tbody>
+        </table>
+      </div>
+      <div class="panel-empty" id="empty-sos" style="display:none;">No ambulance requests yet.</div>
+    </div>
+
+    <div class="panel" id="panel-membership">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Received</th><th>Plan</th><th>Price</th><th>Member</th><th>Contact</th><th>Address</th><th>Status</th>
+          </tr></thead>
+          <tbody id="rows-membership"></tbody>
+        </table>
+      </div>
+      <div class="panel-empty" id="empty-membership" style="display:none;">No membership signups yet.</div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  var API_BASE = '';
+  var TOKEN_KEY = 'afc_admin_token';
+  var refreshTimer = null;
+
+  var STATUS_META = {
+    bookings: { statuses: ['requested','confirmed','completed','cancelled'], open: ['requested'], progress: ['confirmed'], done: ['completed'], cancelled: ['cancelled'] },
+    sos: { statuses: ['request_received','dispatched','en_route','arrived','completed','cancelled'], open: ['request_received'], progress: ['dispatched','en_route','arrived'], done: ['completed'], cancelled: ['cancelled'] },
+    membership: { statuses: ['pending_payment','active','cancelled'], open: ['pending_payment'], progress: [], done: ['active'], cancelled: ['cancelled'] }
+  };
+
+  function token(){ return sessionStorage.getItem(TOKEN_KEY) || ''; }
+
+  function showToast(msg, isError){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isError ? ' error' : '');
+    setTimeout(function(){ t.className = 'toast'; }, 2600);
+  }
+
+  async function doLogin(){
+    var input = document.getElementById('login-token');
+    var errorEl = document.getElementById('login-error');
+    var btn = document.getElementById('login-btn');
+    var val = input.value.trim();
+    errorEl.classList.remove('show');
+    if(!val){
+      errorEl.textContent = 'Enter the admin token.';
+      errorEl.classList.add('show');
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Checking…';
+    try {
+      var res = await fetch(API_BASE + '/api/admin/verify', { headers: { Authorization: 'Bearer ' + val } });
+      if(!res.ok){
+        var body = await res.json().catch(function(){ return {}; });
+        throw new Error(body.error || ('Server error (' + res.status + ')'));
+      }
+      sessionStorage.setItem(TOKEN_KEY, val);
+      enterDashboard();
+    } catch(err){
+      errorEl.textContent = 'Could not sign in — ' + err.message + '.';
+      errorEl.classList.add('show');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Sign in';
+    }
+  }
+
+  function logout(){
+    sessionStorage.removeItem(TOKEN_KEY);
+    if(refreshTimer) clearInterval(refreshTimer);
+    document.getElementById('view-dashboard').classList.remove('active');
+    document.getElementById('view-login').style.display = 'flex';
+    document.getElementById('login-token').value = '';
+  }
+
+  function enterDashboard(){
+    document.getElementById('view-login').style.display = 'none';
+    document.getElementById('view-dashboard').classList.add('active');
+    loadAll();
+    if(refreshTimer) clearInterval(refreshTimer);
+    refreshTimer = setInterval(loadAll, 20000);
+  }
+
+  function showPanel(name){
+    ['bookings','sos','membership'].forEach(function(n){
+      document.getElementById('panel-' + n).classList.toggle('active', n === name);
+      document.getElementById('tab-' + n).classList.toggle('active', n === name);
+    });
+  }
+
+  function fmtDate(iso){
+    if(!iso) return '—';
+    try {
+      var d = new Date(iso.replace(' ', 'T') + 'Z');
+      return d.toLocaleString(undefined, { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    } catch(e){ return iso; }
+  }
+
+  function statusClass(kind, status){
+    var meta = STATUS_META[kind];
+    if(meta.cancelled.indexOf(status) > -1) return 'badge-cancelled';
+    if(meta.done.indexOf(status) > -1) return 'badge-done';
+    if(meta.progress.indexOf(status) > -1) return 'badge-progress';
+    return 'badge-open';
+  }
+
+  function statusSelect(kind, id, current){
+    var meta = STATUS_META[kind];
+    var opts = meta.statuses.map(function(s){
+      return '<option value="' + s + '"' + (s === current ? ' selected' : '') + '>' + s.replace(/_/g,' ') + '</option>';
+    }).join('');
+    return '<select class="status-select" onchange="updateStatus(\'' + kind + '\',' + id + ',this)">' + opts + '</select>';
+  }
+
+  async function updateStatus(kind, id, selectEl){
+    var newStatus = selectEl.value;
+    var prevStatus = selectEl.dataset.prev || newStatus;
+    selectEl.disabled = true;
+    try {
+      var path = kind === 'membership' ? 'membership' : kind;
+      var res = await fetch(API_BASE + '/api/' + path + '/' + id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token() },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if(!res.ok){
+        var body = await res.json().catch(function(){ return {}; });
+        throw new Error(body.error || ('Server error (' + res.status + ')'));
+      }
+      showToast('Status updated to "' + newStatus.replace(/_/g,' ') + '".', false);
+      selectEl.dataset.prev = newStatus;
+      loadAll();
+    } catch(err){
+      showToast('Could not update status — ' + err.message, true);
+      selectEl.value = prevStatus;
+    } finally {
+      selectEl.disabled = false;
+    }
+  }
+
+  function esc(v){
+    if(v === null || v === undefined) return '';
+    return String(v).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function renderBookings(rows){
+    var tbody = document.getElementById('rows-bookings');
+    document.getElementById('count-bookings').textContent = rows.length;
+    document.getElementById('empty-bookings').style.display = rows.length ? 'none' : 'block';
+    tbody.innerHTML = rows.map(function(r){
+      var when = r.service_key === 'ambulance'
+        ? esc(r.pickup) + ' → ' + esc(r.dropoff)
+        : (r.date || '—') + ' ' + (r.time || '') + (r.address ? '<br><span class="muted">' + esc(r.address) + '</span>' : '');
+      return '<tr>' +
+        '<td class="muted">' + fmtDate(r.created_at) + '</td>' +
+        '<td>' + esc(r.service) + (r.staff_needed ? '<br><span class="muted">' + esc(r.staff_needed) + (r.mobility ? ' · ' + esc(r.mobility) : '') + '</span>' : '') + '</td>' +
+        '<td>' + esc(r.name) + '</td>' +
+        '<td>' + esc(r.phone) + (r.email ? '<br><span class="muted">' + esc(r.email) + '</span>' : '') + '</td>' +
+        '<td>' + when + '</td>' +
+        '<td class="muted">' + esc(r.payment_method || '—') + '</td>' +
+        '<td class="notes muted">' + esc(r.notes || '—') + '</td>' +
+        '<td><span class="badge ' + statusClass('bookings', r.status) + '">' + esc(r.status.replace(/_/g,' ')) + '</span><br>' + statusSelect('bookings', r.id, r.status) + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function renderSos(rows){
+    var tbody = document.getElementById('rows-sos');
+    document.getElementById('count-sos').textContent = rows.length;
+    document.getElementById('empty-sos').style.display = rows.length ? 'none' : 'block';
+    tbody.innerHTML = rows.map(function(r){
+      return '<tr>' +
+        '<td class="muted">' + fmtDate(r.created_at) + '</td>' +
+        '<td>' + esc(r.phone) + (r.email ? '<br><span class="muted">' + esc(r.email) + '</span>' : '') + '</td>' +
+        '<td>' + esc(r.address) + (r.dropoff ? '<br><span class="muted">→ ' + esc(r.dropoff) + '</span>' : '') + '</td>' +
+        '<td>' + esc(r.staff_needed) + '</td>' +
+        '<td>' + esc(r.mobility) + '</td>' +
+        '<td class="muted">' + esc(r.payment_method || '—') + '</td>' +
+        '<td class="notes muted">' + esc(r.notes || '—') + '</td>' +
+        '<td><span class="badge ' + statusClass('sos', r.status) + '">' + esc(r.status.replace(/_/g,' ')) + '</span><br>' + statusSelect('sos', r.id, r.status) + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function renderMembership(rows){
+    var tbody = document.getElementById('rows-membership');
+    document.getElementById('count-membership').textContent = rows.length;
+    document.getElementById('empty-membership').style.display = rows.length ? 'none' : 'block';
+    tbody.innerHTML = rows.map(function(r){
+      return '<tr>' +
+        '<td class="muted">' + fmtDate(r.created_at) + '</td>' +
+        '<td>' + esc(r.plan) + '</td>' +
+        '<td class="muted">' + esc(r.price) + '</td>' +
+        '<td>' + esc(r.name) + '</td>' +
+        '<td>' + esc(r.phone) + (r.email ? '<br><span class="muted">' + esc(r.email) + '</span>' : '') + '</td>' +
+        '<td class="muted">' + esc(r.address || '—') + '</td>' +
+        '<td><span class="badge ' + statusClass('membership', r.status) + '">' + esc(r.status.replace(/_/g,' ')) + '</span><br>' + statusSelect('membership', r.id, r.status) + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  async function fetchResource(path){
+    var res = await fetch(API_BASE + '/api/' + path, { headers: { Authorization: 'Bearer ' + token() } });
+    if(res.status === 401){ logout(); throw new Error('Session expired'); }
+    if(!res.ok) throw new Error('Server error (' + res.status + ')');
+    return res.json();
+  }
+
+  async function loadAll(){
+    try {
+      var bookings = await fetchResource('bookings');
+      renderBookings(bookings);
+      var sos = await fetchResource('sos');
+      renderSos(sos);
+      var membership = await fetchResource('membership');
+      renderMembership(membership);
+      document.getElementById('last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    } catch(err){
+      showToast('Could not refresh — ' + err.message, true);
+    }
+  }
+
+  document.getElementById('login-token').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') doLogin();
+  });
+
+  if(token()){
+    enterDashboard();
+  }
+</script>
+
+</body>
+</html>
