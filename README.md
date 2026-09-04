@@ -1,9 +1,59 @@
 # AFC — Allfor Care Medical & Ambulance Services
 
 This is a working backend + web app for AFC. It's a real, runnable system —
-not a mockup — but it's a **starting point**, not a finished production
-service. Read the "Before you take real customers" section before you rely
-on it for actual patients.
+not a mockup — but it's a **starting point** (an MVP), not the finished
+enterprise platform. This repo also holds the documentation that defines
+what the finished platform should become. Read the "Before you take real
+customers" section before relying on the code for actual patients, and see
+**Documentation** below before starting any new build work.
+
+## Documentation
+
+Three documents live in [`docs/`](docs/), written at different points as the
+project's ambitions grew from "get an MVP working" to "specify the real
+enterprise platform." Read them in this order:
+
+1. **[AFC_Dispatcher_Dashboard_Operator_Guide.docx](docs/AFC_Dispatcher_Dashboard_Operator_Guide.docx)**
+   — *Superseded, kept for history.* The original staff-facing guide to the
+   `/admin.html` dashboard only (signing in, working the Bookings/SOS/
+   Membership tabs, status meanings, troubleshooting). Everything in it is
+   also covered, in more depth, by document 2 below.
+2. **[AFC_Complete_System_and_Operations_Guide.docx](docs/AFC_Complete_System_and_Operations_Guide.docx)**
+   — **The current operator/reference guide for the live MVP.** Covers every
+   journey the deployed code actually supports today: the full patient app
+   (all booking types, SOS, membership), the dispatcher dashboard, a system
+   administrator section (env vars, API reference, deployment), the full
+   status lifecycle for every resource, and — importantly — an honest,
+   explicit table of what's missing versus an enterprise deployment (per-staff
+   roles, crew/vehicle roster, reporting, payments, audit trail, data
+   durability). Read this to understand **what exists right now**.
+3. **[AFC_Enterprise_Platform_Specification.docx](docs/AFC_Enterprise_Platform_Specification.docx)**
+   — **The target-state specification for the enterprise platform this repo
+   is meant to grow into.** This is *not* a description of the current code —
+   it specifies, in full depth, every user journey (patient, home doctor,
+   nurse, home health aide, pharmacist, phone consultation, emergency
+   dispatcher, scheduling dispatcher, ambulance crew, fleet manager, duty
+   supervisor, operations manager, executive, billing, membership/customer
+   success, compliance, IT admin), each with step-by-step flows and an
+   edge-case catalog, plus platform-wide RBAC/permission matrix, integration
+   requirements, audit/data-governance rules, privacy/compliance obligations
+   (Jamaica and UK-facing), business continuity targets, and executive KPI
+   reporting. It closes with:
+   - **Appendix A** — current system snapshot and the gap versus this spec
+   - **Appendix B** — glossary of terms (RBAC, SLA, DSAR, MCI, CAPA, RTO/RPO, etc.)
+   - **Appendix C** — a phased implementation roadmap (Phase 0 today's MVP
+     through Phase 5 full reporting/multi-branch)
+   - **Appendix D** — the mandated technology stack (NestJS, PostgreSQL,
+     Redis, React/Next.js, Flutter) and non-negotiable engineering standards
+     (real per-user auth, migrations, API contracts, CI-gated tests,
+     infrastructure as code, secrets management, observability, accessibility)
+     that any implementation of this spec must be built to — without
+     dictating the detailed technical design, which is left to the engineers
+     building it.
+
+   Read this before starting any enterprise build work — it's the
+   requirements document engineers should be implementing against, subject
+   to Appendix D's technology and quality constraints.
 
 ## What's here
 
