@@ -31,14 +31,27 @@ enterprise platform." Read them in this order:
    — **The target-state specification for the enterprise platform this repo
    is meant to grow into.** This is *not* a description of the current code —
    it specifies, in full depth, every user journey (patient, home doctor,
-   nurse, home health aide, pharmacist, phone consultation, emergency
-   dispatcher, scheduling dispatcher, ambulance crew, fleet manager, duty
-   supervisor, operations manager, executive, billing, membership/customer
-   success, compliance, IT admin), each with step-by-step flows and an
-   edge-case catalog, plus platform-wide RBAC/permission matrix, integration
-   requirements, audit/data-governance rules, privacy/compliance obligations
-   (Jamaica and UK-facing), business continuity targets, and executive KPI
-   reporting. It closes with:
+   nurse, home health aide, pharmacist, phone consultation, contact centre
+   agent, emergency dispatcher, scheduling dispatcher, ambulance crew, fleet
+   manager, duty supervisor, operations manager, executive, billing,
+   membership/customer success, compliance, IT admin), each with step-by-step
+   flows and an edge-case catalog, plus platform-wide RBAC/permission matrix,
+   integration requirements, audit/data-governance rules, privacy/compliance
+   obligations (Jamaica and UK-facing), business continuity targets, and
+   executive KPI reporting. It also covers the back-office and governance
+   functions a real operation needs to actually run itself, found by auditing
+   the spec against what a company like this needs rather than just checking
+   it against its own screens: **Commercial and Finance Administration**
+   (rate card and service catalog pricing, vendor procurement and accounts
+   payable, finance thresholds/cost centres/fixed assets, insurer and
+   corporate-account contracts, facility partner relationships),
+   **Workforce Operations** (shift roster creation, leave management,
+   internal HR case handling, non-clinical staff vetting, training
+   administration, non-field performance reviews), and **Clinical
+   Governance** (the medication formulary, clinical protocol/triage-rubric
+   authoring, AFC's own organizational operating licenses, and a
+   quality-improvement program distinct from per-encounter QA sampling). It
+   closes with:
    - **Appendix A** — current system snapshot and the gap versus this spec
    - **Appendix B** — glossary of terms (RBAC, SLA, DSAR, MCI, CAPA, RTO/RPO, etc.)
    - **Appendix C** — a phased implementation roadmap (Phase 0 today's MVP
@@ -59,18 +72,28 @@ enterprise platform." Read them in this order:
    For every role in the Enterprise Platform Specification, this inventories
    every screen needed across the two mobile apps (Patient App; Field Staff
    App covering doctors, nurses, aides, pharmacists, ambulance crew, and
-   phone consultation clinicians) and the eight role-gated modules of the
-   unified internal web platform (Dispatch Console, Fleet Management,
-   Facility Partner Portal, Finance and Billing, Membership and Customer
-   Success, Compliance and Governance, IT Administration, Executive and
-   Operations Reporting). Each screen entry covers purpose, key information
-   displayed, actions, navigation, validation/error states, and — explicitly
-   — its empty state. A "Platform-Wide System States" section up front
-   defines session-expiry, access-denied, generic-error, connectivity-lost,
-   and not-found behavior once, so individual screens don't each reinvent
-   it. This is functional UI/UX (what's on a screen and what you can do with
-   it), not visual design (colors, layout, fonts) — that remains a separate,
-   later phase for whoever builds this.
+   phone consultation clinicians) and the ten role-gated modules of the
+   unified internal web platform (Contact Centre Console, Dispatch Console,
+   Fleet Management, Facility Partner Portal, Finance and Billing, Membership
+   and Customer Success, Compliance and Governance, IT Administration,
+   Executive and Operations Reporting, and Workforce and HR Administration).
+   Each screen entry covers purpose, key information displayed, actions,
+   navigation, validation/error states, and — explicitly — its empty state.
+   A "Platform-Wide System States" section up front defines session-expiry,
+   access-denied, generic-error, connectivity-lost, device-permission,
+   staff account settings, MFA enrollment, and not-found behavior once, so
+   individual screens don't each reinvent it. This is functional UI/UX (what's
+   on a screen and what you can do with it), not visual design (colors,
+   layout, fonts) — that remains a separate, later phase for whoever builds
+   this.
+
+   Both documents 3 and 4 have been through two rounds of traceability
+   verification (every journey step checked against its implementing
+   screen and vice versa, including escalation-alert coverage) plus a
+   top-down business-completeness audit — so the gap between "the documents
+   are self-consistent" and "the documents describe everything a business
+   like this actually needs" has been deliberately, repeatedly checked,
+   not just assumed.
 
 ## What's here
 
