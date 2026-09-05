@@ -9,7 +9,7 @@ customers" section before relying on the code for actual patients, and see
 
 ## Documentation
 
-Three documents live in [`docs/`](docs/), written at different points as the
+Four documents live in [`docs/`](docs/), written at different points as the
 project's ambitions grew from "get an MVP working" to "specify the real
 enterprise platform." Read them in this order:
 
@@ -54,6 +54,23 @@ enterprise platform." Read them in this order:
    Read this before starting any enterprise build work — it's the
    requirements document engineers should be implementing against, subject
    to Appendix D's technology and quality constraints.
+4. **[AFC_UIUX_Functional_Screen_Inventory.docx](docs/AFC_UIUX_Functional_Screen_Inventory.docx)**
+   — **The functional (not visual) screen-by-screen companion to document 3.**
+   For every role in the Enterprise Platform Specification, this inventories
+   every screen needed across the two mobile apps (Patient App; Field Staff
+   App covering doctors, nurses, aides, pharmacists, ambulance crew, and
+   phone consultation clinicians) and the eight role-gated modules of the
+   unified internal web platform (Dispatch Console, Fleet Management,
+   Facility Partner Portal, Finance and Billing, Membership and Customer
+   Success, Compliance and Governance, IT Administration, Executive and
+   Operations Reporting). Each screen entry covers purpose, key information
+   displayed, actions, navigation, validation/error states, and — explicitly
+   — its empty state. A "Platform-Wide System States" section up front
+   defines session-expiry, access-denied, generic-error, connectivity-lost,
+   and not-found behavior once, so individual screens don't each reinvent
+   it. This is functional UI/UX (what's on a screen and what you can do with
+   it), not visual design (colors, layout, fonts) — that remains a separate,
+   later phase for whoever builds this.
 
 ## What's here
 
